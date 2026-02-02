@@ -1,0 +1,11 @@
+**/node_modules/
+**/dist/
+**/__pycache__/
+**/artifacts/
+*.pyc
+*.log
+*.pid
+*.db
+*.db-journal
+*.zip
+.env.local

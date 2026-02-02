@@ -1,0 +1,8 @@
+
+{
+  "name": "Industrial Robot Arm Optimizer",
+  "description": "An advanced industrial dashboard for optimizing robotic arm performance, featuring real-time 3D-style visualization, Pareto frontier analysis, and Gemini-powered optimization strategy suggestions.",
+  "version": "1.0.0-good-checkpoint",
+  "tag": "good",
+  "requestFramePermissions": []
+}

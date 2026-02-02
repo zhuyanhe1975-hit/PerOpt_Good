@@ -1,0 +1,67 @@
+<mujoco model="ER15-1400">
+  <compiler angle="radian"/>
+
+  <!-- Disable contacts/collisions for debugging control/trajectory tracking.
+       All geoms are made non-colliding (contype=0, conaffinity=0). -->
+  <contact>
+    <!-- Especially disable collisions between bodies connected by joints -->
+    <exclude body1="link_1" body2="link_2"/>
+    <exclude body1="link_2" body2="link_3"/>
+    <exclude body1="link_3" body2="link_4"/>
+    <exclude body1="link_4" body2="link_5"/>
+    <exclude body1="link_5" body2="link_6"/>
+  </contact>
+
+  <asset>
+    <mesh name="b_link" file="b_link.STL"/>
+    <mesh name="l_1" file="l_1.STL"/>
+    <mesh name="l_2" file="l_2.STL"/>
+    <mesh name="l_3" file="l_3.STL"/>
+    <mesh name="l_4" file="l_4.STL"/>
+    <mesh name="l_5" file="l_5.STL"/>
+    <mesh name="l_6" file="l_6.STL"/>
+  </asset>
+
+  <worldbody>
+    <geom type="mesh" rgba="1 0 0 1" mesh="b_link" contype="0" conaffinity="0"/>
+    <body name="link_1" pos="0 0 0.43">
+      <inertial pos="0.09835 -0.02908 -0.0995" quat="0.934022 0.0709797 0.344228 -0.0638068" mass="54.52" diaginertia="1.57017 1.42487 0.582675"/>
+      <joint name="joint_1" pos="0 0 0" axis="0 0 1" range="-2.967 2.967"/>
+      <geom pos="0 0 -0.43" quat="1 0 0 0" type="mesh" rgba="0 0 0.6 1" mesh="l_1" contype="0" conaffinity="0"/>
+      <body name="link_2" pos="0.18 0 0" quat="0.5 0.5 -0.5 0.5">
+        <inertial pos="0.25263 -0.00448 0.15471" quat="0.00975051 0.695349 0.0192882 0.718347" mass="11.11" diaginertia="0.602971 0.582765 0.0443882"/>
+        <joint name="joint_2" pos="0 0 0" axis="0 0 1" range="-2.7925 1.5708"/>
+        <geom pos="0 0 0" quat="0.707107 0 0 -0.707107" type="mesh" rgba="1 0 0 1" mesh="l_2" contype="0" conaffinity="0"/>
+        <body name="link_3" pos="0.58 0 0">
+          <inertial pos="0.03913 -0.02495 0.03337" quat="0.887953 -0.0301162 -0.0105448 0.458826" mass="25.03" diaginertia="0.435155 0.287985 0.240747"/>
+          <joint name="joint_3" pos="0 0 0" axis="0 0 1" range="-1.4835 3.0543"/>
+          <geom quat="0.707107 0 0 -0.707107" type="mesh" rgba="0 0 0.8 1" mesh="l_3" contype="0" conaffinity="0"/>
+          <body name="link_4" pos="0.16 -0.64 0" quat="2.08523e-10 -2.08523e-10 -0.707107 0.707107">
+            <inertial pos="-0.00132 -0.0012 -0.30035" quat="0.999952 0.00962981 -0.001782 -0.000972932" mass="10.81" diaginertia="0.280666 0.271512 0.0441655"/>
+            <joint name="joint_4" pos="0 0 0" axis="0 0 1" range="-2.967 2.967"/>
+            <geom pos="0 0 -0.64" quat="0.707107 -0.707107 0 0" type="mesh" rgba="1 0 0 1" mesh="l_4" contype="0" conaffinity="0"/>
+            <body name="link_5" pos="0 0 0" quat="0.5 0.5 -0.5 0.5">
+              <inertial pos="0 0 0" quat="1 0 0 0" mass="5" diaginertia="0.05 0.05 0.05"/>
+              <joint name="joint_5" pos="0 0 0" axis="0 0 1" range="-2.094 2.094"/>
+              <geom pos="0 0 0" quat="1 0 0 0" type="mesh" rgba="0.2 0.2 0.2 1" mesh="l_5" contype="0" conaffinity="0"/>
+              <body name="link_6" pos="0 0 0" quat="0.707107 0 0 -0.707107">
+                <inertial pos="0 0 0" quat="1 0 0 0" mass="2" diaginertia="0.02 0.02 0.02"/>
+                <joint name="joint_6" pos="0 0 0" axis="0 0 1" range="-6.283 6.283"/>
+                <geom pos="0 0 0" quat="1 0 0 0" type="mesh" rgba="1 0 0 1" mesh="l_6" contype="0" conaffinity="0"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <motor joint="joint_1" ctrlrange="-1 1"/>
+    <motor joint="joint_2" ctrlrange="-1 1"/>
+    <motor joint="joint_3" ctrlrange="-1 1"/>
+    <motor joint="joint_4" ctrlrange="-1 1"/>
+    <motor joint="joint_5" ctrlrange="-1 1"/>
+    <motor joint="joint_6" ctrlrange="-1 1"/>
+  </actuator>
+</mujoco>

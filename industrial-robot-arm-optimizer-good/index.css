@@ -1,0 +1,93 @@
+:root {
+  --bg: #0a0a0b;
+  --panel: #0d0d0f;
+  --panel-2: #111114;
+  --panel-3: rgba(9, 9, 11, 0.85);
+  --border: #27272a;
+  --text: #e5e7eb;
+  --muted: #71717a;
+  --muted-2: #52525b;
+  --accent: #10b981;
+  --accent-2: #059669;
+  --danger: #f43f5e;
+  --warning: #f59e0b;
+  --shadow: rgba(0, 0, 0, 0.35);
+}
+
+:root[data-theme="light"] {
+  --bg: #f5f5f7;
+  --panel: #ffffff;
+  --panel-2: #f1f5f9;
+  --panel-3: rgba(255, 255, 255, 0.85);
+  --border: #e5e7eb;
+  --text: #111827;
+  --muted: #6b7280;
+  --muted-2: #94a3b8;
+  --accent: #059669;
+  --accent-2: #047857;
+  --danger: #e11d48;
+  --warning: #d97706;
+  --shadow: rgba(0, 0, 0, 0.12);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  font-size: 14px; /* slightly larger default */
+}
+
+.mono {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.app-root {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px var(--shadow);
+}
+
+.panel-subtle {
+  background: color-mix(in oklab, var(--panel) 88%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 75%, transparent);
+}
+
+.panel-header {
+  background: color-mix(in oklab, var(--panel) 75%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 75%, transparent);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.muted-2 {
+  color: var(--muted-2);
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: color-mix(in oklab, var(--panel-2) 90%, transparent);
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--border) 65%, transparent);
+  border-radius: 10px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklab, var(--border) 90%, transparent);
+}
+

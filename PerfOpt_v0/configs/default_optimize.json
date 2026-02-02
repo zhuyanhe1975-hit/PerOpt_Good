@@ -1,0 +1,56 @@
+{
+  "preset": "default",
+  "note": "Default optimization settings for ER15-1400 (cosine_pos, stable cycles, ref ID feedforward). Advanced users: edit this file directly.",
+  "study_name": "er15_default",
+  "resume": true,
+  "jobs": 8,
+  "trials": 800,
+  "kp_range": [
+    2000.0,
+    10000.0
+  ],
+  "kd_range": [
+    0.1,
+    500.0
+  ],
+  "weights": {
+    "energy": 20,
+    "precision": 40,
+    "vibration": 25,
+    "cycleTime": 15
+  },
+  "config": {
+    "engine": "MuJoCo",
+    "timestep": 0.001,
+    "integrator": "RK4",
+    "traj": "cosine_pos",
+    "sine_freq_hz": 0.25,
+    "sine_amp_scale": 0.5,
+    "sine_phase": 0.0,
+    "sine_ramp_time": 0.2,
+    "sine_cycles": 2,
+    "ff_mode": "no",
+    "computed_torque": false,
+    "disable_limits": false,
+    "torque_limit": [
+      1000.0,
+      1000.0,
+      1000.0,
+      100.0,
+      100.0,
+      100.0
+    ],
+    "vel_limits": [
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0,
+      10.0
+    ]
+  },
+  "ui": {
+    "rounds": 1,
+    "trials_per_round": 800
+  }
+}

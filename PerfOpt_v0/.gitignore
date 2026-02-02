@@ -1,0 +1,15 @@
+# Runtime outputs / artifacts
+artifacts/
+MUJOCO_LOG.TXT
+
+# Python caches
+__pycache__/
+*.pyc
+
+# Local / OS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+

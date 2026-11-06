@@ -43,8 +43,23 @@ npm run dev -- --port 3000 --host 127.0.0.1
 
 ## 可选：Gemini Key
 
-如需 AI 战略层功能，请在 `.env.local` 填写：
+如需 AI 战略层功能，请在未提交的 `.env.local` 填写（不要把密钥写进仓库或 Pages 构建产物）：
 
 ```
 GEMINI_API_KEY=YOUR_API_KEY
 ```
+
+当前优化循环没有调用该接口。未设置时构建使用空字符串。
+
+## GitHub Pages
+
+生产构建的站点根路径是 `/PerOpt_Good/`（`npm run build`，或由 `.github/workflows/pages.yml` 传入 `--base`）。
+
+Pages 上可直接使用的部分：
+
+- ER15-1400 URDF / STL 三维浏览（`public/urdf`）
+- 权重预设与指标 / PD 面板
+
+「启动自动调优」依赖本机 `PerfOpt_v0`（`http://127.0.0.1:8080`）。静态站点只提示这一限制，不会请求公网后端，也不会打包密钥。
+
+合并到 `main` 并启用 Pages 后的地址：`https://zhuyanhe1975-hit.github.io/PerOpt_Good/`

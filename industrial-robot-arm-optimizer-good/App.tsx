@@ -4,7 +4,6 @@ import SidebarLeft from './components/SidebarLeft';
 import RobotVisualizer from './components/RobotVisualizer';
 import SidebarRight from './components/SidebarRight';
 import { RobotParams, Weights, OptimizationResult, LogEntry, JointInfo, UrdfModel, AssetMap, StrategicInsight, SimulationConfig, BackendStatus } from './types';
-import { getStrategicInsight } from './services/geminiService';
 import { PerfOptClient } from './services/backendService';
 import SystemSettingsModal, { applyTheme, loadSystemSettings, saveSystemSettings, SystemSettings } from './components/SystemSettingsModal';
 
@@ -46,6 +45,54 @@ const FALLBACK_URDF = `
 `;
 
 // VERIFIED_GOOD_CHECKPOINT
+
+function isHostedStaticDemo(): boolean {
+  if (typeof window === 'undefined') return false;
+  const host = window.location.hostname;
+  return host !== 'localhost' && host !== '127.0.0.1' && host !== '::1';
+}
+
+const STATIC_DEMO_NOTE =
+  '静态演示：可浏览 ER15-1400 模型、切换权重并查看指标面板。「启动自动调优」需要本机 PerfOpt_v0 后端（http://127.0.0.1:8080，MuJoCo/Optuna）。GitHub Pages 不会启动该服务，也不会写入 API 密钥。';
+
+function flatten(obj: any, prefix = ""): Record<string, string> {
+  const out: Record<string, string> = {};
+  const keyOf = (p: string, k: string) => (p ? `${p}.${k}` : k);
+
+  if (obj === null || obj === undefined) {
+    out[prefix || "$"] = String(obj);
+    return out;
+  }
+  if (typeof obj !== "object") {
+    out[prefix || "$"] = String(obj);
+    return out;
+  }
+  if (Array.isArray(obj)) {
+    out[prefix || "$"] = JSON.stringify(obj);
+    return out;
+  }
+  for (const [k, v] of Object.entries(obj)) {
+    const p = keyOf(prefix, k);
+    if (v === null || v === undefined) out[p] = String(v);
+    else if (typeof v !== "object") out[p] = String(v);
+    else if (Array.isArray(v)) out[p] = JSON.stringify(v);
+    else Object.assign(out, flatten(v, p));
+  }
+  return out;
+}
+
+function diffKeys(prevObj: any, nextObj: any) {
+  const a = flatten(prevObj);
+  const b = flatten(nextObj);
+  const keys = Array.from(new Set([...Object.keys(a), ...Object.keys(b)])).sort();
+  const changes: Array<{ key: string; from: string; to: string }> = [];
+  for (const k of keys) {
+    const av = a[k];
+    const bv = b[k];
+    if (av !== bv) changes.push({ key: k, from: av ?? "(unset)", to: bv ?? "(unset)" });
+  }
+  return changes;
+}
 
 const App: React.FC = () => {
   const [params, setParams] = useState<RobotParams>({});
@@ -102,49 +149,11 @@ const App: React.FC = () => {
   // while a minimal Python server may bind only to IPv4 (0.0.0.0/127.0.0.1).
   const backendClient = useRef(new PerfOptClient("http://127.0.0.1:8080"));
   const lastBackendConnectedRef = useRef<boolean | null>(null);
+  const hostedStaticDemo = isHostedStaticDemo();
 
   const addLog = useCallback((message: string, type: LogEntry['type'] = 'info') => {
     setLogs(prev => [{ id: Math.random().toString(36).substr(2, 9), time: new Date().toLocaleTimeString(), type, message }, ...prev].slice(0, 50));
   }, []);
-
-  const flatten = (obj: any, prefix = ""): Record<string, string> => {
-    const out: Record<string, string> = {};
-    const keyOf = (p: string, k: string) => (p ? `${p}.${k}` : k);
-
-    if (obj === null || obj === undefined) {
-      out[prefix || "$"] = String(obj);
-      return out;
-    }
-    if (typeof obj !== "object") {
-      out[prefix || "$"] = String(obj);
-      return out;
-    }
-    if (Array.isArray(obj)) {
-      out[prefix || "$"] = JSON.stringify(obj);
-      return out;
-    }
-    for (const [k, v] of Object.entries(obj)) {
-      const p = keyOf(prefix, k);
-      if (v === null || v === undefined) out[p] = String(v);
-      else if (typeof v !== "object") out[p] = String(v);
-      else if (Array.isArray(v)) out[p] = JSON.stringify(v);
-      else Object.assign(out, flatten(v, p));
-    }
-    return out;
-  };
-
-  const diffKeys = (prevObj: any, nextObj: any) => {
-    const a = flatten(prevObj);
-    const b = flatten(nextObj);
-    const keys = Array.from(new Set([...Object.keys(a), ...Object.keys(b)])).sort();
-    const changes: Array<{ key: string; from: string; to: string }> = [];
-    for (const k of keys) {
-      const av = a[k];
-      const bv = b[k];
-      if (av !== bv) changes.push({ key: k, from: av ?? "(unset)", to: bv ?? "(unset)" });
-    }
-    return changes;
-  };
 
   const refreshPresetAndSyncUI = useCallback(async (presetName: string) => {
     const presetResp = await backendClient.current.getPresetConfig(presetName);
@@ -243,7 +252,7 @@ const App: React.FC = () => {
     }
 
     return cfg;
-  }, [addLog, diffKeys]);
+  }, [addLog]);
 
   useEffect(() => {
     applyTheme(systemSettings.theme);
@@ -279,9 +288,10 @@ const App: React.FC = () => {
   useEffect(() => {
     const autoLoad = async () => {
       try {
-        const response = await fetch(`/urdf/robot.urdf`);
-        const text = response.ok ? await response.text() : FALLBACK_URDF;
-        parseUrdf(text, response.ok ? "Industrial Workspace" : "Fallback ER15 Engine");
+        const response = await fetch(`${import.meta.env.BASE_URL}urdf/robot.urdf`);
+        const text = response.ok ? await response.text() : '';
+        const urdfOk = text.includes('<robot');
+        parseUrdf(urdfOk ? text : FALLBACK_URDF, urdfOk ? "Industrial Workspace" : "Fallback ER15 Engine");
       } catch {
         parseUrdf(FALLBACK_URDF, "Fallback ER15 Engine");
       }
@@ -290,6 +300,12 @@ const App: React.FC = () => {
   }, [parseUrdf]);
 
   useEffect(() => {
+    if (hostedStaticDemo) {
+      setBackendStatus((prev) => ({ ...prev, connected: false }));
+      addLog(STATIC_DEMO_NOTE, 'warning');
+      return;
+    }
+
     let mounted = true;
     const url = backendStatus.url;
 
@@ -315,7 +331,7 @@ const App: React.FC = () => {
       mounted = false;
       window.clearInterval(id);
     };
-  }, [addLog, backendStatus.url, refreshPresetAndSyncUI]);
+  }, [addLog, backendStatus.url, hostedStaticDemo, refreshPresetAndSyncUI]);
 
   const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
@@ -333,6 +349,14 @@ const App: React.FC = () => {
 
   const runOptimization = async () => {
     if (isOptimizing || !urdfModel) return;
+    if (hostedStaticDemo) {
+      addLog(STATIC_DEMO_NOTE, 'warning');
+      return;
+    }
+    if (!backendStatus.connected) {
+      addLog(`Backend OFFLINE (${backendStatus.url}). 三维浏览仍然可用；自动调优需要先在本机启动 PerfOpt_v0。`, 'warning');
+      return;
+    }
     
     stopRef.current = false;
     pauseRef.current = false;
@@ -546,8 +570,14 @@ const App: React.FC = () => {
             </div>
         </header>
 
+        {hostedStaticDemo && (
+          <div className="px-6 py-2 text-[12px] leading-relaxed border-b border-[var(--warning)] bg-[var(--panel-2)]">
+            {STATIC_DEMO_NOTE}
+          </div>
+        )}
+
         <div className="flex-grow relative" style={{ background: "var(--bg)" }}>
-           <RobotVisualizer urdfContent={urdfModel?.content || null} metrics={metrics} assets={assets} isOptimizing={isOptimizing && !isPaused} basePath="/urdf" />
+           <RobotVisualizer urdfContent={urdfModel?.content || null} metrics={metrics} assets={assets} isOptimizing={isOptimizing && !isPaused} basePath={`${import.meta.env.BASE_URL}urdf`} />
            <div className="absolute bottom-6 left-6 p-4 rounded-xl backdrop-blur-lg panel-subtle">
               <div className="text-[12px] muted mb-2 font-bold uppercase tracking-wider">TCP 误差 (全局最优 Max / Mean)</div>
               <div className="space-y-1">
